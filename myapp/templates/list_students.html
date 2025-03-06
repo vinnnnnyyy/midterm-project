@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - Student Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --vercel-black: #000000;
+            --vercel-white: #ffffff;
+            --vercel-gray-50: #fafafa;
+            --vercel-gray-100: #eaeaea;
+            --vercel-gray-200: #999999;
+            --vercel-gray-800: #111111;
+        }
+        
+        body {
+            background-color: var(--vercel-white);
+            color: var(--vercel-black);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+        
+        .header-bg {
+            background-color: var(--vercel-black);
+            color: var(--vercel-white);
+        }
+
+        .btn-primary {
+            background-color: var(--vercel-black);
+            color: var(--vercel-white);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--vercel-gray-800);
+            transform: translateY(-1px);
+        }
+
+        .card {
+            border: 1px solid var(--vercel-gray-100);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .table-row {
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background-color: var(--vercel-gray-50);
+        }
+
+        .action-button {
+            transition: all 0.2s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="header-bg">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center py-8">
+                <h1 class="text-3xl font-bold tracking-tight">Student Management System</h1>
+                <a href="{% url 'add_student' %}" 
+                   class="btn-primary px-6 py-3 text-sm font-medium rounded-md inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add New Student
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <!-- Search and Filter Section -->
+        <div class="card bg-white mb-8">
+            <div class="p-6">
+                <form method="GET" class="grid grid-cols-1 gap-6 md:grid-cols-4">
+                    <div class="space-y-2">
+                        <label for="search" class="block text-sm font-medium">Search</label>
+                        <input type="text" name="search" id="search" 
+                               placeholder="Search by name or ID"
+                               value="{{ request.GET.search }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="course" class="block text-sm font-medium">Course</label>
+                        <select name="course" id="course"
+                                class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black">
+                            <option value="">All Courses</option>
+                            {% for course in courses %}
+                            <option value="{{ course }}" {% if request.GET.course == course %}selected{% endif %}>
+                                {{ course }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="sort" class="block text-sm font-medium">Sort By</label>
+                        <select name="sort" id="sort"
+                                class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black">
+                            <option value="name" {% if request.GET.sort == 'name' or not request.GET.sort %}selected{% endif %}>Name</option>
+                            <option value="id" {% if request.GET.sort == 'id' %}selected{% endif %}>Student ID</option>
+                            <option value="email" {% if request.GET.sort == 'email' %}selected{% endif %}>Email</option>
+                            <option value="course" {% if request.GET.sort == 'course' %}selected{% endif %}>Course</option>
+                            <option value="dob" {% if request.GET.sort == 'dob' %}selected{% endif %}>Date of Birth</option>
+                            <option value="enrollment" {% if request.GET.sort == 'enrollment' %}selected{% endif %}>Enrollment Date</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="btn-primary w-full px-6 py-3 text-sm font-medium rounded-md">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="card bg-white overflow-hidden">
+            {% if students %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for student in students %}
+                        <tr class="table-row">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.StudentID }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.firstname }} {{ student.lastname }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.email }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.dateofbirth|date:"F d, Y" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.enrollmentdate|date:"F d, Y" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ student.course }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                                <a href="{% url 'edit_student' student.StudentID %}" 
+                                   class="action-button inline-flex items-center px-4 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:border-black">
+                                    Edit
+                                </a>
+                                <a href="{% url 'delete_student' student.StudentID %}" 
+                                   class="action-button inline-flex items-center px-4 py-2 border border-red-200 rounded-md text-sm font-medium text-red-600 hover:bg-red-50">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <p class="text-gray-500">No students found.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if students.has_other_pages %}
+        <div class="mt-6 flex justify-center space-x-1">
+            {% if students.has_previous %}
+            <a href="?page={{ students.previous_page_number }}&search={{ request.GET.search }}&course={{ request.GET.course }}&sort={{ request.GET.sort }}"
+               class="px-4 py-2 text-sm border border-gray-200 rounded-md hover:border-black">
+                Previous
+            </a>
+            {% endif %}
+            
+            {% for num in students.paginator.page_range %}
+                {% if students.number == num %}
+                <span class="px-4 py-2 text-sm bg-black text-white rounded-md">{{ num }}</span>
+                {% else %}
+                <a href="?page={{ num }}&search={{ request.GET.search }}&course={{ request.GET.course }}&sort={{ request.GET.sort }}"
+                   class="px-4 py-2 text-sm border border-gray-200 rounded-md hover:border-black">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if students.has_next %}
+            <a href="?page={{ students.next_page_number }}&search={{ request.GET.search }}&course={{ request.GET.course }}&sort={{ request.GET.sort }}"
+               class="px-4 py-2 text-sm border border-gray-200 rounded-md hover:border-black">
+                Next
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html>

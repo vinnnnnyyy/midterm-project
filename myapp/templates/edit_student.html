@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Student - Student Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --vercel-black: #000000;
+            --vercel-white: #ffffff;
+            --vercel-gray-50: #fafafa;
+            --vercel-gray-100: #eaeaea;
+            --vercel-gray-200: #999999;
+            --vercel-gray-800: #111111;
+        }
+        
+        body {
+            background-color: var(--vercel-white);
+            color: var(--vercel-black);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+        
+        .header-bg {
+            background-color: var(--vercel-black);
+            color: var(--vercel-white);
+        }
+
+        .btn-primary {
+            background-color: var(--vercel-black);
+            color: var(--vercel-white);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--vercel-gray-800);
+            transform: translateY(-1px);
+        }
+
+        .form-control {
+            border: 1px solid var(--vercel-gray-200);
+        }
+
+        .form-control:focus {
+            border-color: var(--vercel-black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: 1px solid var(--vercel-gray-100);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        input, select {
+            border-radius: 6px !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="header-bg">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex justify-between items-center py-8">
+                <h1 class="text-3xl font-bold tracking-tight">Update Student</h1>
+                <a href="{% url 'list_students' %}" class="text-white hover:text-gray-200 transition-colors duration-200">Back to List</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        <div class="card bg-white">
+            <form method="POST" class="p-8 space-y-8" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Student Information -->
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                    <!-- Student ID -->
+                    <div class="space-y-2">
+                        <label for="student_id" class="block text-sm font-medium">Student ID</label>
+                        <input type="text" name="student_id" id="student_id" required
+                               value="{{ student.StudentID }}"
+                               readonly
+                               class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+
+                    <!-- Name -->
+                    <div class="space-y-2">
+                        <label for="firstname" class="block text-sm font-medium">First Name</label>
+                        <input type="text" name="firstname" id="firstname" required
+                               value="{{ student.firstname }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="lastname" class="block text-sm font-medium">Last Name</label>
+                        <input type="text" name="lastname" id="lastname" required
+                               value="{{ student.lastname }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-medium">Email Address</label>
+                        <input type="email" name="email" id="email" required
+                               value="{{ student.email }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+
+                    <!-- Course -->
+                    <div class="space-y-2">
+                        <label for="course" class="block text-sm font-medium">Course</label>
+                        <div class="relative">
+                            <input type="text" 
+                                   list="course-list"
+                                   name="course" 
+                                   id="course" 
+                                   required
+                                   value="{{ student.course }}"
+                                   placeholder="Select or type a course"
+                                   class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                            <datalist id="course-list">
+                                {% for course in courses %}
+                                    <option value="{{ course }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="space-y-2">
+                        <label for="dob" class="block text-sm font-medium">Date of Birth</label>
+                        <input type="date" name="dob" id="dob" required
+                               value="{{ student.dateofbirth|date:'Y-m-d' }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+
+                    <!-- Enrollment Date -->
+                    <div class="space-y-2">
+                        <label for="enrollment_date" class="block text-sm font-medium">Enrollment Date</label>
+                        <input type="date" name="enrollment_date" id="enrollment_date" required
+                               value="{{ student.enrollmentdate|date:'Y-m-d' }}"
+                               class="mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-md text-sm focus:outline-none focus:border-black form-control">
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-8 border-t border-gray-100">
+                    <a href="{% url 'list_students' %}" 
+                       class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:border-black transition-colors duration-200">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="btn-primary px-6 py-3 text-sm font-medium rounded-md">
+                        Update Student
+                    </button>
+                </div>
+
+                {% if error %}
+                <div class="mt-6 p-4 rounded-md bg-red-50 border border-red-100">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Error</h3>
+                            <div class="mt-2 text-sm text-red-700">{{ error }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </main>
+</body>
+</html>
